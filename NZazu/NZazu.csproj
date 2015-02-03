@@ -76,10 +76,12 @@
     <Compile Include="Fields\NZazuBoolField.cs" />
     <Compile Include="Fields\NZazuField.cs" />
     <Compile Include="Layout\GridLayoutStrategy_Should.cs" />
-    <Compile Include="NZazuFieldFactory.cs" />
+    <Compile Include="Factory\NZazuFieldFactory.cs" />
     <Compile Include="Fields\NZazuField_Should.cs" />
     <Compile Include="Fields\NZazuTextField.cs" />
-    <Compile Include="NZazuFieldFactory_Should.cs" />
+    <Compile Include="Factory\NZazuFieldFactory_Should.cs" />
+    <Compile Include="NZazuViewExtensions.cs" />
+    <Compile Include="NZazuViewExtensions_Should.cs" />
     <Compile Include="NZazuView_Should.cs" />
     <Compile Include="NZazuView.xaml.cs">
       <DependentUpon>NZazuView.xaml</DependentUpon>
@@ -99,6 +101,9 @@
       <Project>{4D469864-C26E-483E-99DB-DE7305EAAA4F}</Project>
       <Name>NZazu.Contracts</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DataProvider\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.build\build.targets" />

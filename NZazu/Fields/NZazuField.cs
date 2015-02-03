@@ -23,6 +23,12 @@ namespace NZazu.Fields
         public string Hint { get; protected internal set; }
         public string Description { get; protected internal set; }
 
+        public virtual string Value
+        {
+            get { return String.Empty; }
+            set { }
+        }
+
         public Control LabelControl { get { return _label.Value; } }
         public Control ValueControl { get { return _value.Value; } }
 

@@ -9,6 +9,8 @@ namespace NZazu
         string Prompt { get; }
         string Hint { get; }
         string Description { get; }
+
+        string Value { get; set; }
         Control LabelControl { get; }
         Control ValueControl { get; }
     }

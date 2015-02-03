@@ -17,5 +17,11 @@ namespace NZazu.Fields
                 ToolTip = Description
             };
         }
+
+        public override string Value
+        {
+            get { return ((TextBox) ValueControl).Text; }
+            set { ((TextBox) ValueControl).Text = value; }
+        }
     }
 }

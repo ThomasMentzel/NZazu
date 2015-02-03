@@ -7,6 +7,5 @@ namespace Sample
         string Name { get; }
         string Description { get; }
         FormDefinition FormDefinition { get; }
-        FormData FormData { get; }
     }
 }

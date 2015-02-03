@@ -10,7 +10,9 @@ namespace NZazu
         public INZazuField CreateField(FieldDefinition fieldDefinition)
         {
             if (fieldDefinition == null) throw new ArgumentNullException("fieldDefinition");
+
             NZazuField field = null;
+            
             switch (fieldDefinition.Type)
             {
                 case "string": field = new NZazuTextField(fieldDefinition.Key);

@@ -7,7 +7,6 @@ namespace Sample
         public string Name { get; set; }
         public string Description { get; set; }
         public FormDefinition FormDefinition { get; set; }
-        public FormData FormData { get; set; }
 
         public override string ToString()
         {

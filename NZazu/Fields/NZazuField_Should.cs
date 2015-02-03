@@ -59,5 +59,16 @@ namespace NZazu.Fields
             var label = (Label)sut.ValueControl;
             label.Should().BeNull();
         }
+
+        [Test]
+        public void Get_Set_Value_should_do_nothing()
+        {
+            var sut = new NZazuField("test");
+            sut.Value.Should().BeEmpty();
+
+            sut.Value = "test";
+
+            sut.Value.Should().BeEmpty();
+        }
     }
 }

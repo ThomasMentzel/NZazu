@@ -1,3 +1,4 @@
+using System;
 using System.Windows.Controls;
 using FluentAssertions;
 using NUnit.Framework;
@@ -62,5 +63,20 @@ namespace NZazu.Fields
             label.Should().NotBeNull();
             label.Text.Should().BeEmpty();
         }
+
+        [Test]
+        public void Get_Set_Value_should_propagate_to_ValueControl()
+        {
+            var sut = new NZazuTextField("test");
+            sut.Value.Should().BeEmpty();
+
+            sut.Value = "test";
+            sut.Value.Should().Be("test");
+            ((TextBox)sut.ValueControl).Text.Should().Be("test");
+
+            ((TextBox) sut.ValueControl).Text = String.Empty;
+            sut.Value.Should().BeEmpty();
+        }
+
     }
 }

@@ -137,7 +137,6 @@ namespace NZazu
             sut.LayoutStrategy.Should().NotBeNull();
         }
 
-
         private static void VerifyControl(NZazuView sut, NZazuField field)
         {
             var control = field.ValueControl;

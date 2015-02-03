@@ -56,7 +56,6 @@
     </Compile>
     <Compile Include="FieldDefinition.cs" />
     <Compile Include="FieldDefinition_Should.cs" />
-    <Compile Include="FormData.cs" />
     <Compile Include="FormDefinition.cs" />
     <Compile Include="FormDefinition_Should.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
