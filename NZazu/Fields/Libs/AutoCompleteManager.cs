@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -175,12 +175,16 @@ namespace NZazu.Fields.Libs
         {
             var border = (Border)_listBox.Template.FindName("Border", _listBox);
             _scrollViewer = (ScrollViewer)border.Child;
+            if (_scrollViewer == null) return;
+
             _resizeGrip = _scrollViewer.Template.FindName("ResizeGrip", _scrollViewer) as ResizeGrip;
             _scrollBar = _scrollViewer.Template.FindName("PART_VerticalScrollBar", _scrollViewer) as ScrollBar;
         }
 
         private void UpdateGripVisual()
         {
+            if (_resizeGrip == null) return;
+
             var rectSize = SystemParameters.VerticalScrollBarWidth;
             var triangle = (Path)_resizeGrip.Template.FindName("RG_TRIANGLE", _resizeGrip);
             var pg = (PathGeometry)triangle.Data;
@@ -201,37 +205,46 @@ namespace NZazu.Fields.Libs
 
         private void SetupEventHandlers()
         {
-            var ownerWindow = Window.GetWindow(_textBox);
-            // ReSharper disable InvocationIsSkipped
-            // ReSharper disable PossibleNullReferenceException
-            Debug.Assert(ownerWindow != null, "ownerWindow != null");
-            ownerWindow.PreviewMouseDown += OwnerWindowPreviewMouseDown;
-            ownerWindow.Deactivated += OwnerWindowDeactivated;
-            // ReSharper restore PossibleNullReferenceException
-            // ReSharper restore InvocationIsSkipped
+            if (_textBox != null)
+            {
+                var ownerWindow = Window.GetWindow(_textBox);
+                // ReSharper disable InvocationIsSkipped
+                // ReSharper disable PossibleNullReferenceException
+                Debug.Assert(ownerWindow != null, "ownerWindow != null");
+                ownerWindow.PreviewMouseDown += OwnerWindowPreviewMouseDown;
+                ownerWindow.Deactivated += OwnerWindowDeactivated;
+                // ReSharper restore PossibleNullReferenceException
+                // ReSharper restore InvocationIsSkipped
 
-            var wih = new WindowInteropHelper(ownerWindow);
-            var hwndSource = HwndSource.FromHwnd(wih.Handle);
-            // ReSharper disable InvocationIsSkipped
-            // ReSharper disable PossibleNullReferenceException
-            Debug.Assert(hwndSource != null, "hwndSource != null");
-            var hwndSourceHook = new HwndSourceHook(HookHandler);
-            hwndSource.AddHook(hwndSourceHook);
-            //hwndSource.RemoveHook();?
-            // ReSharper restore PossibleNullReferenceException
-            // ReSharper restore InvocationIsSkipped
+                var wih = new WindowInteropHelper(ownerWindow);
+                var hwndSource = HwndSource.FromHwnd(wih.Handle);
+                // ReSharper disable InvocationIsSkipped
+                // ReSharper disable PossibleNullReferenceException
+                Debug.Assert(hwndSource != null, "hwndSource != null");
+                var hwndSourceHook = new HwndSourceHook(HookHandler);
+                hwndSource.AddHook(hwndSourceHook);
+                //hwndSource.RemoveHook();?
+                // ReSharper restore PossibleNullReferenceException
+                // ReSharper restore InvocationIsSkipped
 
-            _textBox.TextChanged += TextBoxTextChanged;
-            _textBox.PreviewKeyDown += TextBoxPreviewKeyDown;
-            _textBox.LostFocus += TextBoxLostFocus;
+                _textBox.TextChanged += TextBoxTextChanged;
+                _textBox.PreviewKeyDown += TextBoxPreviewKeyDown;
+                _textBox.LostFocus += TextBoxLostFocus;
+            }
 
-            _listBox.PreviewMouseLeftButtonDown += ListBoxPreviewMouseLeftButtonDown;
-            _listBox.MouseLeftButtonUp += ListBoxMouseLeftButtonUp;
-            _listBox.PreviewMouseMove += ListBoxPreviewMouseMove;
+            if (_listBox != null)
+            {
+                _listBox.PreviewMouseLeftButtonDown += ListBoxPreviewMouseLeftButtonDown;
+                _listBox.MouseLeftButtonUp += ListBoxMouseLeftButtonUp;
+                _listBox.PreviewMouseMove += ListBoxPreviewMouseMove;
+            }
 
-            _resizeGrip.PreviewMouseLeftButtonDown += ResizeGripPreviewMouseLeftButtonDown;
-            _resizeGrip.PreviewMouseMove += ResizeGripPreviewMouseMove;
-            _resizeGrip.PreviewMouseUp += ResizeGripPreviewMouseUp;
+            if (_resizeGrip != null)
+            {
+                _resizeGrip.PreviewMouseLeftButtonDown += ResizeGripPreviewMouseLeftButtonDown;
+                _resizeGrip.PreviewMouseMove += ResizeGripPreviewMouseMove;
+                _resizeGrip.PreviewMouseUp += ResizeGripPreviewMouseUp;
+            }
         }
 
         #endregion
@@ -243,7 +256,7 @@ namespace NZazu.Fields.Libs
             if (_textChangedByCode || Disabled || DataProvider == null)
                 return;
 
-            var text = _textBox.Text;
+            var text = _textBox?.Text ?? "";
             if (string.IsNullOrEmpty(text))
             {
                 _popup.IsOpen = false;
@@ -258,7 +271,7 @@ namespace NZazu.Fields.Libs
                 _asyncThread = new Thread(() =>
                 {
                     var dispatcher = _textBox.Dispatcher; // Application.Current.Dispatcher;
-                    var currentText = (String)dispatcher.Invoke((Func<TextBox, string>)(txtBox => txtBox.Text), _textBox);
+                    var currentText = (string)dispatcher?.Invoke((Func<TextBox, string>)(txtBox => txtBox.Text), _textBox);
                     if (text != currentText)
                         return;
                     var items = GetSuggestions(text, DataConnection);
@@ -295,7 +308,7 @@ namespace NZazu.Fields.Libs
             if (e.Key == Key.Enter)
             {
                 _popup.IsOpen = false;
-                _textBox.SelectAll();
+                _textBox?.SelectAll();
                 return;
             }
 
@@ -319,6 +332,8 @@ namespace NZazu.Fields.Libs
                             index = -1;
                             break;
                         default:
+                            if (_scrollBar == null) break;
+
                             if (index == (int)_scrollBar.Value)
                             {
                                 index -= (int)_scrollBar.ViewportSize;
@@ -341,7 +356,7 @@ namespace NZazu.Fields.Libs
                     {
                         index = -1;
                     }
-                    else if (index == (int)(_scrollBar.Value + _scrollBar.ViewportSize) - 1)
+                    else if (index == (int)(_scrollBar.Value + _scrollBar.ViewportSize) - 1 && _scrollBar != null)
                     {
                         index += (int)_scrollBar.ViewportSize - 1;
                         if (index > _listBox.Items.Count - 1)
@@ -349,7 +364,7 @@ namespace NZazu.Fields.Libs
                             index = _listBox.Items.Count - 1;
                         }
                     }
-                    else
+                    else if (_scrollBar != null)
                     {
                         index = (int)(_scrollBar.Value + _scrollBar.ViewportSize - 1);
                     }
@@ -469,6 +484,8 @@ namespace NZazu.Fields.Libs
 
         private void ResizeGripPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if (_resizeGrip == null) return;
+
             _downWidth = _chrome.ActualWidth + PopupShadowDepth;
             _downHeight = _chrome.ActualHeight + PopupShadowDepth;
 
@@ -483,6 +500,8 @@ namespace NZazu.Fields.Libs
 
         private void ResizeGripPreviewMouseMove(object sender, MouseEventArgs e)
         {
+            if (_resizeGrip == null) return;
+
             if (e.LeftButton != MouseButtonState.Pressed)
             {
                 return;
@@ -519,6 +538,8 @@ namespace NZazu.Fields.Libs
 
         private void ResizeGripPreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (_resizeGrip == null) return;
+
             _resizeGrip.ReleaseMouseCapture();
             if (Math.Abs(_popup.Width - _downWidth) > Epsilon || Math.Abs(_popup.Height - _downHeight) > Epsilon)
             {
@@ -563,7 +584,7 @@ namespace NZazu.Fields.Libs
 
         private void PopulatePopupList(IEnumerable<string> items)
         {
-            var text = _textBox.Text;
+            var text = _textBox?.Text ?? "";
 
             _listBox.ItemsSource = items;
             if (_listBox.Items.Count == 0)
@@ -581,11 +602,11 @@ namespace NZazu.Fields.Libs
 
             _listBox.SelectedIndex = -1;
             _textBeforeChangedByCode = text;
-            _scrollViewer.ScrollToHome();
+            _scrollViewer?.ScrollToHome();
             ShowPopup();
 
             //
-            if (AutoAppend && !_supressAutoAppend &&
+            if (AutoAppend && !_supressAutoAppend && _textBox != null &&
                 _textBox.SelectionLength == 0 &&
                 _textBox.SelectionStart == _textBox.Text.Length)
             {
@@ -606,7 +627,7 @@ namespace NZazu.Fields.Libs
 
         private bool PopupOnTop
         {
-            get { return _popupOnTop; }
+            get => _popupOnTop;
             set
             {
                 if (_popupOnTop == value)
@@ -616,15 +637,21 @@ namespace NZazu.Fields.Libs
                 _popupOnTop = value;
                 if (_popupOnTop)
                 {
+                    if (_scrollBar != null)
+                        _scrollBar.Margin = new Thickness(0, SystemParameters.HorizontalScrollBarHeight, 0, 0);
+                    
+                    if (_resizeGrip == null) return;
                     _resizeGrip.VerticalAlignment = VerticalAlignment.Top;
-                    _scrollBar.Margin = new Thickness(0, SystemParameters.HorizontalScrollBarHeight, 0, 0);
                     _resizeGrip.LayoutTransform = new ScaleTransform(1, -1);
                     _resizeGrip.Cursor = Cursors.SizeNESW;
                 }
                 else
                 {
+                    if (_scrollBar != null)
+                        _scrollBar.Margin = new Thickness(0, 0, 0, SystemParameters.HorizontalScrollBarHeight);
+
+                    if (_resizeGrip == null) return;
                     _resizeGrip.VerticalAlignment = VerticalAlignment.Bottom;
-                    _scrollBar.Margin = new Thickness(0, 0, 0, SystemParameters.HorizontalScrollBarHeight);
                     _resizeGrip.LayoutTransform = Transform.Identity;
                     _resizeGrip.Cursor = Cursors.SizeNWSE;
                 }
@@ -635,6 +662,8 @@ namespace NZazu.Fields.Libs
 
         private void ShowPopup()
         {
+            if (_textBox == null) return;
+
             var popupOnTop = false;
 
             var p = new Point(0, _textBox.ActualHeight);
@@ -687,6 +716,8 @@ namespace NZazu.Fields.Libs
 
         private void UpdateText(string text, bool selectAll)
         {
+            if (_textBox == null) return;
+
             _textChangedByCode = true;
             _textBox.Text = text;
             if (selectAll)
